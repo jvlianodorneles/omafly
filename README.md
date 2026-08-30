@@ -26,33 +26,67 @@ Omafly spawns an animated housefly that roams naturally across your screens, rea
 
 ## 🚀 Installation & Usage
 
-### 1. Install as an Omarchy Plugin
+### Option A: Direct Install (Recommended)
 
-If developing or using locally, symlink or clone the repository to your Omarchy plugins directory:
+Install and enable Omafly directly from GitHub:
+
+```bash
+omarchy plugin add https://github.com/jvlianodorneles/omafly.git --enable
+```
+
+### Option B: Local Development / Manual Install
+
+Clone or symlink the repository into your Omarchy plugins directory:
 
 ```bash
 mkdir -p ~/.config/omarchy/plugins
 ln -sf ~/Projects/ambed-fly ~/.config/omarchy/plugins/dorneles.omafly
 ```
 
-### 2. Enable the Plugin
-
-Enable the plugin in Omarchy (places the bar widget in your status bar and starts the overlay):
+Then enable the plugin:
 
 ```bash
 omarchy plugin enable dorneles.omafly
 ```
 
-To place the widget in a specific bar section:
+*(Optional) To place the status bar widget in a specific section:*
 
 ```bash
 omarchy plugin enable dorneles.omafly --section right
 ```
 
-To rescan plugins at any time:
+---
+
+## 🗑️ Uninstallation
+
+To remove Omafly from your system:
+
+### 1. Remove the Plugin via Omarchy CLI
 
 ```bash
-omarchy-shell shell rescanPlugins
+omarchy plugin remove dorneles.omafly
+```
+*(Or using the alias: `omarchy plugin rm dorneles.omafly`)*
+
+This automatically disables the plugin in the shell, deletes or unlinks the plugin files from `~/.config/omarchy/plugins`, and refreshes the shell.
+
+### 2. (Optional) Remove State & Configuration
+
+To completely remove saved preferences and state:
+
+```bash
+rm -rf ~/.local/state/omarchy/omafly
+```
+
+### 3. (Optional) Clean Up Keybindings
+
+If you added custom shortcuts to `~/.config/hypr/bindings.lua`, remove or comment out the Omafly entries:
+
+```lua
+-- Remove these lines if previously added:
+-- o.bind("SUPER + ALT + P", "Omafly: panel", "omarchy-shell dorneles.omafly-panel toggle")
+-- o.bind("SUPER + ALT + F", "Omafly: toggle", "omarchy-shell dorneles.omafly toggle")
+-- o.bind("SUPER + ALT + S", "Omafly: shoo", "omarchy-shell dorneles.omafly shoo")
 ```
 
 ---
