@@ -151,6 +151,16 @@ omarchy-shell dorneles.omafly status
 
 ---
 
+## 📦 Dependencies & Requirements
+
+Omafly runs out of the box on a standard Omarchy environment with zero third-party packages or pip modules required:
+
+- **Omarchy Shell & Quickshell** (Qt Quick layer-shell integration and bar widget hosting)
+- **Hyprland** (Wayland compositor providing UNIX sockets for pointer coordinates and window events)
+- **Python 3** (used by `tracker.py`; relies exclusively on Python standard library modules: `struct`, `select`, `fcntl`, `socket`, `json`, `os`, `sys`, `time`)
+
+---
+
 ## 📂 Architecture
 
 - **`manifest.json`**: Omarchy plugin manifest (schema version 1) declaring `kinds: ["overlay", "bar-widget"]`.
