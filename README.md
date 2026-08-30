@@ -4,7 +4,9 @@ A lightweight, animated desktop fly companion for **Omarchy** and **Hyprland**, 
 
 Omafly spawns an animated housefly that roams naturally across your screens, reacts to mouse movement, perches on moving windows, and can be startled across your workspace.
 
-![Omafly Icon](assets/icon.svg)
+<p align="center">
+  <img src="preview.png" alt="Omafly Preview" width="700">
+</p>
 
 ---
 
