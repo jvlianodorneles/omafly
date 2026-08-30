@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "id": "dorneles.omafly",
+  "name": "Omafly",
+  "version": "1.0.0",
+  "author": "Walid Rouibah & Dorneles",
+  "license": "GPL-3.0-or-later",
+  "icon": "assets/icon.svg",
+  "description": "A small animated fly companion for the Omarchy desktop that wanders around and reacts to mouse movement and moving windows.",
+  "keywords": [
+    "fly",
+    "omafly",
+    "desktop toy",
+    "pet",
+    "animated",
+    "cursor",
+    "quickshell",
+    "omarchy"
+  ],
+  "kinds": [
+    "overlay",
+    "bar-widget"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "overlay": "Overlay.qml",
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Omafly",
+    "icon": "assets/icon.svg",
+    "description": "Animated desktop fly companion that roams and reacts to your cursor and windows",
+    "category": "Fun",
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "flyEnabled": true,
+      "speedScale": "normal",
+      "flyScale": "normal",
+      "reactToCursor": true,
+      "reactToWindows": true,
+      "startleOnClick": true
+    },
+    "schema": [
+      {
+        "key": "flyEnabled",
+        "type": "boolean",
+        "label": "Fly Active",
+        "defaultValue": true,
+        "description": "Whether the fly is currently roaming your screen."
+      },
+      {
+        "key": "speedScale",
+        "type": "enum",
+        "label": "Flight Speed",
+        "options": [
+          "lazy",
+          "normal",
+          "fast",
+          "hyper"
+        ],
+        "defaultValue": "normal",
+        "description": "Movement speed of the fly."
+      },
+      {
+        "key": "flyScale",
+        "type": "enum",
+        "label": "Fly Size",
+        "options": [
+          "small",
+          "normal",
+          "large",
+          "giant"
+        ],
+        "defaultValue": "normal",
+        "description": "Visual size of the fly on screen."
+      },
+      {
+        "key": "reactToCursor",
+        "type": "boolean",
+        "label": "React to Cursor",
+        "defaultValue": true,
+        "description": "Fly occasionally approaches and interacts with the mouse pointer."
+      },
+      {
+        "key": "reactToWindows",
+        "type": "boolean",
+        "label": "React to Windows",
+        "defaultValue": true,
+        "description": "Fly is attracted to moving window tops and perches on borders."
+      },
+      {
+        "key": "startleOnClick",
+        "type": "boolean",
+        "label": "Startle on Click",
+        "defaultValue": true,
+        "description": "Fly zips away when you click near it."
+      }
+    ]
+  }
+}

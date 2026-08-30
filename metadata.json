@@ -1,7 +1,0 @@
-{
-    "uuid": "ambed-fly@walid",
-    "name": "Ambed Fly",
-    "description": "A small animated fly for the GNOME desktop that wanders around and reacts to the mouse.",
-    "shell-version": ["45", "46", "47", "48", "49", "50"],
-    "url": "https://github.com/walrou/ambed-fly"
-}
