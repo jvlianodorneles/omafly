@@ -14,9 +14,10 @@ Omafly spawns an animated housefly that roams naturally across your screens, rea
 
 - **Smooth Wing Flapping**: Authentic 3-frame animation cycling at 30 FPS (`fly_frame1.png`, `fly_frame2.png`, `fly_frame3.png`).
 - **Natural Flight Dynamics**: 60 FPS physics engine with dynamic waypoint wandering, saccadic bursts, speed variations, and multi-monitor edge bouncing.
+- **Random Stops & Resting**: Flies don't fly non-stop! Natural random pauses where the fly lands, folds its wings, and rests (with occasional grooming wing twitches).
 - **Cursor Tracking**: Naturally curves toward the mouse pointer with velocity lead time and realistic proximity deviation.
 - **Window Attraction**: Senses when your active focused window moves and flies over to land on the top border.
-- **Startle & Shoo 💨**: Click near the fly or hit "Shoo!" to startle the fly into a high-speed evasive dash.
+- **Startle & Shoo 💨**: Click near the fly, move the cursor too close while resting, or hit "Shoo!" to startle the fly into an evasive dash.
 - **100% Click-Through**: Runs on a transparent Wayland layer-shell overlay (`WlrLayer.Overlay`) with an empty input mask so it never blocks windows or mouse clicks.
 - **Bar Widget**: Animated fly icon in your Omarchy status bar with real-time flapping feedback and left/right click actions.
 - **Control Panel**: Quick popup panel to toggle the fly, trigger "Shoo!", change flight speeds, adjust sizes, and toggle behaviors.
@@ -144,6 +145,9 @@ omarchy-shell dorneles.omafly setSpeed fast
 
 # Change visual size: small | normal | large | giant
 omarchy-shell dorneles.omafly setScale large
+
+# Toggle random stops (1 or 0)
+omarchy-shell dorneles.omafly setRandomStops 1
 
 # Query real-time status (JSON)
 omarchy-shell dorneles.omafly status

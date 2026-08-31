@@ -18,6 +18,8 @@ Item {
   property bool reactToCursor: true
   property bool reactToWindows: true
   property bool startleOnClick: true
+  property bool randomStops: true
+  property bool isWingTwitching: false
 
   // State persistence path
   readonly property string stateDir: Quickshell.env("HOME") + "/.local/state/omarchy/omafly"
@@ -68,8 +70,9 @@ Item {
   property real angularVelocity: 0
   property real wanderForce: 0
 
-  property string mode: "wander" // "wander" | "cursor" | "window" | "shoo"
+  property string mode: "wander" // "wander" | "idle" | "cursor" | "window" | "shoo"
   property double modeUntil: 0
+  property double nextStopAllowed: 0
 
   property real pointerX: 0
   property real pointerY: 0
@@ -110,6 +113,7 @@ Item {
             if (cfg.reactToCursor !== undefined) root.reactToCursor = Boolean(cfg.reactToCursor)
             if (cfg.reactToWindows !== undefined) root.reactToWindows = Boolean(cfg.reactToWindows)
             if (cfg.startleOnClick !== undefined) root.startleOnClick = Boolean(cfg.startleOnClick)
+            if (cfg.randomStops !== undefined) root.randomStops = Boolean(cfg.randomStops)
           }
         }
       } catch (e) {}
@@ -124,7 +128,8 @@ Item {
         flyScale: root.flyScale,
         reactToCursor: root.reactToCursor,
         reactToWindows: root.reactToWindows,
-        startleOnClick: root.startleOnClick
+        startleOnClick: root.startleOnClick,
+        randomStops: root.randomStops
       }
       configFile.setText(JSON.stringify(cfg, null, 2) + "\n")
     } catch (e) {}
@@ -147,6 +152,15 @@ Item {
     root.pointerY = y
     root.lastPointerX = x
     root.lastPointerY = y
+
+    // If fly is idle / landed and pointer moves very close, startle it back into flight
+    if (root.mode === "idle" && root.flyEnabled) {
+      var dx = x - (root.posX + root.flyContainerSize / 2)
+      var dy = y - (root.posY + root.flyContainerSize / 2)
+      if (Math.hypot(dx, dy) < 85) {
+        root.shoo()
+      }
+    }
   }
 
   function onWindowMoved(rect) {
@@ -173,6 +187,7 @@ Item {
     var now = Date.now()
     root.mode = "shoo"
     root.modeUntil = now + 850
+    root.nextStopAllowed = now + 2500 + Math.random() * 2000
     root.totalShoos++
     // Turn away from pointer or current heading with random perturbation
     var awayAngle = Math.atan2(root.posY - root.pointerY, root.posX - root.pointerX) * 180 / Math.PI
@@ -186,10 +201,23 @@ Item {
     if (now > root.modeUntil) {
       if (root.mode !== "wander") {
         root.mode = "wander"
-        root.modeUntil = now + 1800 + Math.random() * 3000
-      } else if (root.reactToCursor && Math.random() < 0.0035) {
-        root.mode = "cursor"
-        root.modeUntil = now + 1800 + Math.random() * 2600
+        root.modeUntil = now + 2000 + Math.random() * 3500
+        root.nextStopAllowed = now + 1500 + Math.random() * 2500
+      } else {
+        // In wander mode: check if it's time to pause/land or track cursor
+        if (root.randomStops && now > root.nextStopAllowed && Math.random() < 0.007) {
+          root.mode = "idle"
+          // Stop duration: quick pauses (1.2s - 2.5s) or longer rests (3.0s - 6.0s)
+          var stopDuration = Math.random() < 0.65
+            ? (1200 + Math.random() * 1600)
+            : (2800 + Math.random() * 3200)
+          root.modeUntil = now + stopDuration
+          root.speed = 0
+          root.angularVelocity = 0
+        } else if (root.reactToCursor && Math.random() < 0.0035) {
+          root.mode = "cursor"
+          root.modeUntil = now + 1800 + Math.random() * 2600
+        }
       }
     }
   }
@@ -303,6 +331,13 @@ Item {
     var steer = 0
     var speedBoost = 0
 
+    if (root.mode === "idle") {
+      // Stationary when landed/resting: gently damp any residual angular velocity
+      root.angularVelocity *= 0.75
+      root.speed = 0
+      return
+    }
+
     if (root.mode === "shoo") {
       steer = (Math.random() - 0.5) * 2.8
       speedBoost = 4.0
@@ -387,7 +422,38 @@ Item {
     running: root.flyEnabled
     repeat: true
     onTriggered: {
-      root.currentFrame = (root.currentFrame + 1) % root.frameSources.length
+      if (root.mode === "idle") {
+        if (root.isWingTwitching) {
+          root.currentFrame = 1
+        } else {
+          root.currentFrame = 0
+        }
+      } else {
+        root.currentFrame = (root.currentFrame + 1) % root.frameSources.length
+      }
+    }
+  }
+
+  // Occasional grooming twitch while stopped (quick wing flick / grooming pose)
+  Timer {
+    id: groomTimer
+    interval: 400
+    running: root.flyEnabled && root.mode === "idle"
+    repeat: true
+    onTriggered: {
+      if (Math.random() < 0.18) {
+        root.isWingTwitching = true
+        twitchEndTimer.restart()
+      }
+    }
+  }
+
+  Timer {
+    id: twitchEndTimer
+    interval: 85
+    repeat: false
+    onTriggered: {
+      root.isWingTwitching = false
     }
   }
 
@@ -498,6 +564,12 @@ Item {
       return "invalid scale (choose small, normal, large, giant)"
     }
 
+    function setRandomStops(val: string): string {
+      root.randomStops = (val === "true" || val === "1" || val === "on")
+      root.saveConfig()
+      return "ok"
+    }
+
     function status(): string {
       return JSON.stringify({
         enabled: root.flyEnabled,
@@ -505,6 +577,7 @@ Item {
         speedScale: root.speedScale,
         flyScale: root.flyScale,
         speedMultiplier: root.speedMultiplier,
+        randomStops: root.randomStops,
         pos: [Math.round(root.posX), Math.round(root.posY)],
         angle: Math.round(root.angle),
         flightSeconds: root.flightSeconds,

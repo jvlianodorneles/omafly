@@ -29,6 +29,7 @@ Panel {
   property bool reactToCursor: true
   property bool reactToWindows: true
   property bool startleOnClick: true
+  property bool randomStops: true
 
   property bool shooFeedback: false
 
@@ -67,6 +68,7 @@ Panel {
             if (cfg.reactToCursor !== undefined) root.reactToCursor = Boolean(cfg.reactToCursor)
             if (cfg.reactToWindows !== undefined) root.reactToWindows = Boolean(cfg.reactToWindows)
             if (cfg.startleOnClick !== undefined) root.startleOnClick = Boolean(cfg.startleOnClick)
+            if (cfg.randomStops !== undefined) root.randomStops = Boolean(cfg.randomStops)
           }
         }
       } catch (e) {}
@@ -81,7 +83,8 @@ Panel {
         flyScale: root.flyScale,
         reactToCursor: root.reactToCursor,
         reactToWindows: root.reactToWindows,
-        startleOnClick: root.startleOnClick
+        startleOnClick: root.startleOnClick,
+        randomStops: root.randomStops
       }
       configFile.setText(JSON.stringify(cfg, null, 2) + "\n")
     } catch (e) {}
@@ -417,6 +420,18 @@ Panel {
             onClicked: {
               root.startleOnClick = !root.startleOnClick
               root.saveConfig()
+            }
+          }
+
+          Toggle {
+            width: behaviorCol.width
+            label: "Random Pauses"
+            description: "Naturally rests and stops moving"
+            checked: root.randomStops
+            onClicked: {
+              root.randomStops = !root.randomStops
+              root.saveConfig()
+              root.callFly("setRandomStops", root.randomStops ? "1" : "0")
             }
           }
         }
