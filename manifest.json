@@ -30,7 +30,7 @@
     "displayName": "Omafly",
     "icon": "assets/icon.svg",
     "description": "Animated desktop fly companion that roams and reacts to your cursor and windows",
-    "category": "Fun",
+    "category": "Appearance",
     "allowMultiple": false,
     "defaultSection": "right",
     "defaults": {
@@ -39,7 +39,8 @@
       "flyScale": "normal",
       "reactToCursor": true,
       "reactToWindows": true,
-      "startleOnClick": true
+      "startleOnClick": true,
+      "randomStops": true
     },
     "schema": [
       {
@@ -95,6 +96,13 @@
         "label": "Startle on Click",
         "defaultValue": true,
         "description": "Fly zips away when you click near it."
+      },
+      {
+        "key": "randomStops",
+        "type": "boolean",
+        "label": "Random Stops",
+        "defaultValue": true,
+        "description": "Naturally rests and pauses movement at random intervals."
       }
     ]
   }

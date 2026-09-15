@@ -61,10 +61,14 @@ Panel {
         var raw = text()
         if (raw && raw.trim().length > 0) {
           var cfg = JSON.parse(raw)
-          if (cfg) {
+          if (cfg && typeof cfg === "object") {
             if (cfg.enabled !== undefined) root.flyEnabled = Boolean(cfg.enabled)
-            if (cfg.speedScale !== undefined) root.speedScale = String(cfg.speedScale)
-            if (cfg.flyScale !== undefined) root.flyScale = String(cfg.flyScale)
+            if (typeof cfg.speedScale === "string" && ["lazy", "normal", "fast", "hyper"].indexOf(cfg.speedScale) !== -1) {
+              root.speedScale = cfg.speedScale
+            }
+            if (typeof cfg.flyScale === "string" && ["small", "normal", "large", "giant"].indexOf(cfg.flyScale) !== -1) {
+              root.flyScale = cfg.flyScale
+            }
             if (cfg.reactToCursor !== undefined) root.reactToCursor = Boolean(cfg.reactToCursor)
             if (cfg.reactToWindows !== undefined) root.reactToWindows = Boolean(cfg.reactToWindows)
             if (cfg.startleOnClick !== undefined) root.startleOnClick = Boolean(cfg.startleOnClick)
@@ -127,8 +131,19 @@ Panel {
     owner: root.barIdentity
     bar: root.bar || (hostWidget ? hostWidget.bar : null)
     open: root.opened
+    focusTarget: keyCatcher
     contentWidth: panel.fittedContentWidth(Style.space(340))
     contentHeight: panel.fittedContentHeight(mainColumn.implicitHeight)
+
+    PanelKeyCatcher {
+      id: keyCatcher
+      anchors.fill: parent
+      onCloseRequested: root.close()
+      onTextKey: function(t) {
+        if (t === "s") root.triggerShoo()
+        else if (t === "p" || t === "q") root.toggleFly()
+      }
+    }
 
     Column {
       id: mainColumn
@@ -156,6 +171,8 @@ Panel {
 
           Text {
             text: "OMAFLY"
+            textFormat: Text.PlainText
+            renderType: Text.NativeRendering
             color: Color.accent
             font.family: root.fontFamily
             font.pixelSize: Style.font.body
@@ -178,6 +195,8 @@ Panel {
               id: statusText
               anchors.centerIn: parent
               text: root.flyEnabled ? "ROAMING" : "PAUSED"
+              textFormat: Text.PlainText
+              renderType: Text.NativeRendering
               color: root.flyEnabled ? Color.accent : Util.alpha(root.foreground, 0.6)
               font.family: root.fontFamily
               font.pixelSize: Style.font.caption
@@ -196,7 +215,9 @@ Panel {
 
             Text {
               anchors.centerIn: parent
-              text: "✕"
+              text: "\u2715"
+              textFormat: Text.PlainText
+              renderType: Text.NativeRendering
               color: Color.popups.text
               font.pixelSize: 11
             }
@@ -271,6 +292,8 @@ Panel {
 
           Text {
             text: "FLIGHT SPEED"
+            textFormat: Text.PlainText
+            renderType: Text.NativeRendering
             color: Util.alpha(root.foreground, 0.7)
             font.family: root.fontFamily
             font.pixelSize: Style.font.caption
@@ -326,6 +349,8 @@ Panel {
 
           Text {
             text: "FLY SIZE"
+            textFormat: Text.PlainText
+            renderType: Text.NativeRendering
             color: Util.alpha(root.foreground, 0.7)
             font.family: root.fontFamily
             font.pixelSize: Style.font.caption
@@ -383,6 +408,8 @@ Panel {
 
           Text {
             text: "BEHAVIORS"
+            textFormat: Text.PlainText
+            renderType: Text.NativeRendering
             color: Util.alpha(root.foreground, 0.7)
             font.family: root.fontFamily
             font.pixelSize: Style.font.caption

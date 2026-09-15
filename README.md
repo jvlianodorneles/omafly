@@ -73,10 +73,11 @@ This automatically disables the plugin in the shell, deletes or unlinks the plug
 
 ### 2. (Optional) Remove State & Configuration
 
-To completely remove saved preferences and state:
+To remove saved preferences and state:
 
 ```bash
-rm -rf ~/.local/state/omarchy/omafly
+rm -f ~/.local/state/omarchy/omafly/config.json
+rmdir ~/.local/state/omarchy/omafly 2>/dev/null || true
 ```
 
 ### 3. (Optional) Clean Up Keybindings
@@ -99,9 +100,21 @@ If you added custom shortcuts to `~/.config/hypr/bindings.lua`, remove or commen
 - **Right-Click**: Instantly toggle the fly on or off (pause / resume).
 - **Hover**: View current status, flight mode, and flight speed.
 
+### Control Panel (Keyboard Navigation)
+- **Esc**: Close the control panel.
+- **s**: Shoo the fly across the screen.
+- **p** or **q**: Toggle fly pause / activate.
+
 ### Desktop Interaction
 - **Mouse Clicks**: Clicking within 220px of the fly will startle it away.
 - **Moving Windows**: Drag or move a window to watch the fly race over and land on the top title bar.
+
+---
+
+## 🔒 Security & Privacy
+
+- **Network**: None. Omafly is 100% offline and local; it makes zero external network requests and transmits no telemetry.
+- **Input Tracking**: Pointer coordinates are polled directly from Hyprland IPC (`cursorpos` and `socket2.sock`). Click detection only monitors mouse/touchpad pointer devices via `/dev/input` and strictly rejects keyboard devices.
 
 ---
 

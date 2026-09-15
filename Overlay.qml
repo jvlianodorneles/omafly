@@ -22,9 +22,9 @@ Item {
   property bool isWingTwitching: false
 
   // State persistence path
-  readonly property string stateDir: Quickshell.env("HOME") + "/.local/state/omarchy/omafly"
+  readonly property string stateDir: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/omarchy/omafly"
   readonly property string stateFilePath: stateDir + "/config.json"
-  readonly property string dirFs: Qt.resolvedUrl(".").toString().replace("file://", "")
+  readonly property string trackerScriptPath: decodeURIComponent(Qt.resolvedUrl("tracker.py").toString().replace(/^file:\/\//, ""))
 
   // Multipliers
   readonly property real speedMultiplier: {
@@ -106,10 +106,14 @@ Item {
         var raw = text()
         if (raw && raw.trim().length > 0) {
           var cfg = JSON.parse(raw)
-          if (cfg) {
+          if (cfg && typeof cfg === "object") {
             if (cfg.enabled !== undefined) root.flyEnabled = Boolean(cfg.enabled)
-            if (cfg.speedScale !== undefined) root.speedScale = String(cfg.speedScale)
-            if (cfg.flyScale !== undefined) root.flyScale = String(cfg.flyScale)
+            if (typeof cfg.speedScale === "string" && ["lazy", "normal", "fast", "hyper"].indexOf(cfg.speedScale) !== -1) {
+              root.speedScale = cfg.speedScale
+            }
+            if (typeof cfg.flyScale === "string" && ["small", "normal", "large", "giant"].indexOf(cfg.flyScale) !== -1) {
+              root.flyScale = cfg.flyScale
+            }
             if (cfg.reactToCursor !== undefined) root.reactToCursor = Boolean(cfg.reactToCursor)
             if (cfg.reactToWindows !== undefined) root.reactToWindows = Boolean(cfg.reactToWindows)
             if (cfg.startleOnClick !== undefined) root.startleOnClick = Boolean(cfg.startleOnClick)
@@ -479,9 +483,18 @@ Item {
   // -------------------------------------------------------------
   // Background Tracker Process
   // -------------------------------------------------------------
+  property int trackerCrashCount: 0
+
+  Timer {
+    id: trackerCrashResetTimer
+    interval: 30000
+    repeat: false
+    onTriggered: root.trackerCrashCount = 0
+  }
+
   Process {
     id: trackerProc
-    command: ["python3", root.dirFs + "tracker.py"]
+    command: ["/usr/bin/python3", "-u", "-I", root.trackerScriptPath]
     running: root.flyEnabled
 
     stdout: SplitParser {
@@ -504,7 +517,13 @@ Item {
     }
 
     onExited: function(exitCode, exitStatus) {
-      if (root.flyEnabled) trackerRestartTimer.restart()
+      if (root.flyEnabled) {
+        root.trackerCrashCount++
+        trackerCrashResetTimer.restart()
+        // If repeatedly crashing, back off to 10 seconds instead of rapid thrashing
+        trackerRestartTimer.interval = root.trackerCrashCount > 5 ? 10000 : 1500
+        trackerRestartTimer.restart()
+      }
     }
   }
 
@@ -609,6 +628,7 @@ Item {
         id: win
         screen: screenScope.modelData
         color: "transparent"
+        visible: root.flyEnabled
         exclusionMode: ExclusionMode.Ignore
         anchors { top: true; bottom: true; left: true; right: true }
 
@@ -656,5 +676,11 @@ Item {
       root.posY = sc.y + sc.height * 0.25 + Math.random() * (sc.height * 0.5)
     }
     root.pickNewWanderTarget()
+  }
+
+  Component.onDestruction: {
+    if (trackerProc.running) {
+      trackerProc.running = false
+    }
   }
 }

@@ -82,10 +82,14 @@ BarWidget {
         var raw = text()
         if (raw && raw.trim().length > 0) {
           var cfg = JSON.parse(raw)
-          if (cfg) {
+          if (cfg && typeof cfg === "object") {
             if (cfg.enabled !== undefined) root.flyEnabled = Boolean(cfg.enabled)
-            if (cfg.speedScale !== undefined) root.speedScale = String(cfg.speedScale)
-            if (cfg.flyScale !== undefined) root.flyScale = String(cfg.flyScale)
+            if (typeof cfg.speedScale === "string" && ["lazy", "normal", "fast", "hyper"].indexOf(cfg.speedScale) !== -1) {
+              root.speedScale = cfg.speedScale
+            }
+            if (typeof cfg.flyScale === "string" && ["small", "normal", "large", "giant"].indexOf(cfg.flyScale) !== -1) {
+              root.flyScale = cfg.flyScale
+            }
           }
         }
       } catch (e) {}
@@ -117,6 +121,8 @@ BarWidget {
     }
   }
 
+  readonly property string safeSpeed: (["lazy", "normal", "fast", "hyper"].indexOf(root.speedScale) !== -1 ? root.speedScale : "normal").toUpperCase()
+
   implicitWidth: button.implicitWidth
   implicitHeight: button.implicitHeight
 
@@ -130,7 +136,7 @@ BarWidget {
     active: root.opened
 
     tooltipText: root.flyEnabled
-      ? "Omafly \u2014 Roaming\n\u2022 Click: Open Control Panel\n\u2022 Right-click: Turn Off\n\u2022 Speed: " + root.speedScale.toUpperCase()
+      ? "Omafly \u2014 Roaming\n\u2022 Click: Open Control Panel\n\u2022 Right-click: Turn Off\n\u2022 Speed: " + root.safeSpeed
       : "Omafly \u2014 Paused\n\u2022 Click: Open Control Panel\n\u2022 Right-click: Turn On"
 
     fixedWidth: root.vertical ? -1 : Math.round(content.implicitWidth + scaledHorizontalMargin * 2)
